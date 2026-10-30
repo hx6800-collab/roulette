@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2026년 재경부산고 40회 동기회 송년 행운 추첨</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Canvas Confetti CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #311042 100%);
+            min-height: 100vh;
+        }
+        /* Custom Glowing and Shadows */
+        .glow-button {
+            box-shadow: 0 0 15px rgba(168, 85, 247, 0.4);
+            transition: all 0.3s ease;
+        }
+        .glow-button:hover:not(:disabled) {
+            box-shadow: 0 0 25px rgba(168, 85, 247, 0.7);
+            transform: translateY(-2px);
+        }
+        .glow-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+        /* Glassmorphism Card */
+        .glass-card {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        /* Custom scrollbar for text area */
+        textarea::-webkit-scrollbar {
+            width: 8px;
+        }
+        textarea::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.5);
+            border-radius: 4px;
+        }
+        textarea::-webkit-scrollbar-thumb {
+            background: rgba(139, 92, 246, 0.5);
+            border-radius: 4px;
+        }
+        textarea::-webkit-scrollbar-thumb:hover {
+            background: rgba(139, 92, 246, 0.8);
+        }
+    </style>
+</head>
+<text class="text-white">
+    <div class="container mx-auto px-4 py-8 max-w-5xl">
+        <!-- Header -->
+        <header class="text-center mb-8">
+            <h1 class="text-3xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-pink-400 to-purple-400 mb-2 leading-tight">
+                🎯 40회 동기회 26년 송년 행운 추첨
+            </h1>
+        </header>
+
+        <!-- Main Content Layout -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            
+            <!-- Left Side: Input Form & Controls -->
+            <div class="lg:col-span-4 glass-card p-6 rounded-2xl shadow-xl flex flex-col gap-5">
+                <div>
+                    <div class="flex justify-between items-center mb-2">
+                        <label for="namesInput" class="font-semibold text-slate-200 text-sm flex items-center gap-2">
+                            <i class="fa-solid fa-users text-purple-400"></i> 참가자 목록 입력
+                        </label>
+                        <span id="participantCount" class="text-xs font-bold px-2 py-1 rounded-full bg-purple-900/60 text-purple-300 border border-purple-500/30">
+                            0 / 20명
+                        </span>
+                    </div>
+                    <p class="text-xs text-slate-400 mb-3">줄바꿈(Enter) 또는 쉼표(,)로 구분해 주세요.</p>
+                    <textarea id="namesInput" rows="7" 
+                        class="w-full bg-slate-900/80 border border-slate-700 rounded-xl p-3.5 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/30 transition text-sm resize-none"
+                        placeholder="홍길동&#10;김철수&#10;이영희&#10;박지성&#10;손흥민..."></textarea>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex flex-col gap-2.5">
+                    <button id="btnSample" class="w-full py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium text-xs rounded-lg border border-slate-700 transition flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-magic"></i> 예시 데이터 불러오기
+                    </button>
+                    
+                    <!-- 1등 / 2등 추첨 버튼 분리 -->
+                    <div class="grid grid-cols-2 gap-2 mt-1">
+                        <button id="btnSpin1st" class="glow-button py-3.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-extrabold text-base rounded-xl transition flex items-center justify-center gap-2">
+                            🥇 1등 추첨!
+                        </button>
+                        <button id="btnSpin2nd" class="glow-button py-3.5 bg-gradient-to-r from-slate-400 to-slate-500 hover:from-slate-300 hover:to-slate-400 text-slate-950 font-extrabold text-base rounded-xl transition flex items-center justify-center gap-2">
+                            🥈 2등 추첨!
+                        </button>
+                    </div>
+
+                    <button id="btnReset" class="w-full py-2 bg-rose-950/40 hover:bg-rose-900/50 text-rose-300 font-medium text-xs rounded-lg border border-rose-800/40 transition flex items-center justify-center gap-2 mt-1">
+                        <i class="fa-solid fa-trash-can"></i> 전체 초기화
+                    </button>
+                </div>
+
+                <!-- Alert Box -->
+                <div id="alertBox" class="hidden p-3 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs flex items-center gap-2">
+                    <i class="fa-solid fa-triangle-exclamation text-amber-400"></i>
+                    <span id="alertMessage">알림 메시지</span>
+                </div>
+            </div>
+
+            <!-- Right Side: Roulette Canvas & Winner Cards -->
+            <div class="lg:col-span-8 flex flex-col items-center gap-6">
+                
+                <!-- Roulette Container -->
+                <div class="glass-card p-6 rounded-2xl shadow-2xl w-full flex flex-col items-center justify-center relative overflow-hidden">
+                    
+                    <!-- Top Pin Pointer -->
+                    <div class="absolute top-3 z-20 flex flex-col items-center filter drop-shadow-[0_4px_6px_rgba(0,0,0,0.5)]">
+                        <div class="w-6 h-8 bg-amber-400 clip-pointer transform rotate-180" style="clip-path: polygon(50% 0%, 0% 100%, 100% 100%);"></div>
+                        <div class="w-4 h-4 rounded-full bg-amber-300 border-2 border-slate-900 -mt-2"></div>
+                    </div>
+
+                    <!-- Canvas Wheel -->
+                    <div class="relative w-full max-w-[420px] aspect-square flex items-center justify-center my-2">
+                        <canvas id="rouletteCanvas" class="w-full h-full rounded-full shadow-2xl cursor-pointer"></canvas>
+                    </div>
+
+                    <!-- Center Hub Text / Status -->
+                    <div id="statusBadge" class="mt-2 text-xs font-semibold text-slate-400 tracking-wide uppercase">
+                        준비됨
+                    </div>
+                </div>
+
+                <!-- Winners Board Container -->
+                <div class="w-full grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- 1st Place Winner Card -->
+                    <div class="glass-card p-4 rounded-xl border border-amber-500/30 bg-gradient-to-br from-amber-500/10 via-slate-900/60 to-slate-900/80 flex items-center gap-4 relative overflow-hidden">
+                        <div class="w-12 h-12 rounded-full bg-amber-500/20 border border-amber-400/50 flex items-center justify-center text-amber-300 text-2xl font-bold shrink-0">
+                            🥇
+                        </div>
+                        <div>
+                            <div class="text-xs uppercase tracking-wider font-bold text-amber-400 mb-0.5">1등 당첨자 (Grand Prize)</div>
+                            <div id="w1Name" class="text-xl font-extrabold text-white">---</div>
+                        </div>
+                    </div>
+
+                    <!-- 2nd Place Winner Card -->
+                    <div class="glass-card p-4 rounded-xl border border-slate-400/30 bg-gradient-to-br from-slate-400/10 via-slate-900/60 to-slate-900/80 flex items-center gap-4 relative overflow-hidden">
+                        <div class="w-12 h-12 rounded-full bg-slate-300/20 border border-slate-300/50 flex items-center justify-center text-slate-200 text-2xl font-bold shrink-0">
+                            🥈
+                        </div>
+                        <div>
+                            <div class="text-xs uppercase tracking-wider font-bold text-slate-300 mb-0.5">2등 당첨자 (Runner Up)</div>
+                            <div id="w2Name" class="text-xl font-extrabold text-white">---</div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Celebration Modal Popup -->
+    <div id="winnerModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md hidden items-center justify-center z-50 p-4 transition-all duration-300">
+        <div class="glass-card max-w-sm w-full p-8 rounded-3xl text-center border-2 border-amber-400/50 shadow-2xl transform transition-transform scale-95 duration-300 relative overflow-hidden">
+            <div id="modalBadge" class="inline-block text-4xl mb-3">🎉</div>
+            <h3 id="modalTitle" class="text-xl font-bold text-amber-300 uppercase tracking-widest mb-1">축하합니다!</h3>
+            <div id="modalRank" class="text-sm text-slate-300 mb-4 font-semibold">1등 당첨</div>
+            
+            <div id="modalWinnerName" class="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-pink-300 to-purple-300 mb-6 drop-shadow-sm">
+                홍길동
+            </div>
+
+            <button id="btnCloseModal" class="w-full py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-bold rounded-xl shadow-lg transition transform active:scale-95">
+                확인
+            </button>
+        </div>
+    </div>
+
+    <!-- Web Audio API Sound Generator -->
+    <script>
+        // Web Audio Synthesizer for Sound Effects (No external audio file dependencies)
+        class SoundFX {
+            constructor() {
+                this.ctx = null;
+            }
+            init() {
+                if (!this.ctx) {
+                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+            }
+            playTick() {
+                try {
+                    this.init();
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(600, this.ctx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(150, this.ctx.currentTime + 0.04);
+                    gain.gain.setValueAtTime(0.15, this.ctx.currentTime);
+                    gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.04);
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start();
+                    osc.stop(this.ctx.currentTime + 0.04);
+                } catch(e){}
+            }
+            playFanfare() {
+                try {
+                    this.init();
+                    const now = this.ctx.currentTime;
+                    const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+                    notes.forEach((freq, idx) => {
+                        const osc = this.ctx.createOscillator();
+                        const gain = this.ctx.createGain();
+                        osc.type = 'triangle';
+                        osc.frequency.setValueAtTime(freq, now + idx * 0.1);
+                        gain.gain.setValueAtTime(0.2, now + idx * 0.1);
+                        gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.1 + 0.3);
+                        osc.connect(gain);
+                        gain.connect(this.ctx.destination);
+                        osc.start(now + idx * 0.1);
+                        osc.stop(now + idx * 0.1 + 0.3);
+                    });
+                } catch(e){}
+            }
+        }
+        const sfx = new SoundFX();
+    </script>
+
+    <!-- Main Logic Script -->
+    <script>
+        // Color Palette for Segments
+        const sliceColors = [
+            '#f43f5e', '#ec4899', '#d946ef', '#a855f7',
+            '#8b5cf6', '#6366f1', '#3b82f6', '#0ea5e9',
+            '#06b6d4', '#14b8a6', '#10b981', '#22c55e',
+            '#84cc16', '#eab308', '#f59e0b', '#f97316',
+            '#ef4444', '#f43f5e', '#8b5cf6', '#06b6d4'
+        ];
+
+        // Elements
+        const canvas = document.getElementById('rouletteCanvas');
+        const ctx = canvas.getContext('2d');
+        const namesInput = document.getElementById('namesInput');
+        const participantCount = document.getElementById('participantCount');
+        const btnSpin1st = document.getElementById('btnSpin1st');
+        const btnSpin2nd = document.getElementById('btnSpin2nd');
+        const btnReset = document.getElementById('btnReset');
+        const btnSample = document.getElementById('btnSample');
+        const alertBox = document.getElementById('alertBox');
+        const alertMessage = document.getElementById('alertMessage');
+        const w1Name = document.getElementById('w1Name');
+        const w2Name = document.getElementById('w2Name');
+        const statusBadge = document.getElementById('statusBadge');
+        
+        // Modal Elements
+        const winnerModal = document.getElementById('winnerModal');
+        const modalBadge = document.getElementById('modalBadge');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalRank = document.getElementById('modalRank');
+        const modalWinnerName = document.getElementById('modalWinnerName');
+        const btnCloseModal = document.getElementById('btnCloseModal');
+
+        // State variables
+        let participants = [];
+        let currentRotation = 0; // in radians
+        let isSpinning = false;
+        let winner1st = null;
+        let winner2nd = null;
+
+        // Active candidates available for drawing (excludes already won participants)
+        function getActiveParticipants(targetRank) {
+            const rawList = getParticipantsFromInput();
+            let active = [...rawList];
+
+            // If drawing for 2nd place, exclude 1st place winner
+            if (targetRank === 2 && winner1st) {
+                active = active.filter(name => name !== winner1st);
+            }
+            // If drawing for 1st place, exclude 2nd place winner
+            if (targetRank === 1 && winner2nd) {
+                active = active.filter(name => name !== winner2nd);
+            }
+
+            return active;
+        }
+
+        // High DPI Canvas Scaling
+        function resizeCanvas() {
+            const rect = canvas.parentElement.getBoundingClientRect();
+            const dpr = window.devicePixelRatio || 1;
+            canvas.width = rect.width * dpr;
+            canvas.height = rect.height * dpr;
+            ctx.scale(dpr, dpr);
+            drawWheel();
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+
+        // Get sanitized list of participants (max 20)
+        function getParticipantsFromInput() {
+            const raw = namesInput.value;
+            const list = raw.split(/[\n,]+/)
+                           .map(s => s.trim())
+                           .filter(s => s.length > 0);
+            
+            return list.slice(0, 20);
+        }
+
+        // Show Custom Alert
+        function showAlert(msg) {
+            alertMessage.textContent = msg;
+            alertBox.classList.remove('hidden');
+        }
+
+        function hideAlert() {
+            alertBox.classList.add('hidden');
+        }
+
+        // Input Change Listener
+        namesInput.addEventListener('input', () => {
+            hideAlert();
+            const rawList = namesInput.value.split(/[\n,]+/).map(s => s.trim()).filter(s => s.length > 0);
+            if (rawList.length > 20) {
+                showAlert("참가자는 최대 20명까지만 입력할 수 있습니다. 상위 20명만 반영됩니다.");
+            }
+
+            participants = getParticipantsFromInput();
+            participantCount.textContent = `${participants.length} / 20명`;
+            drawWheel();
+        });
+
+        // Sample Data Button
+        btnSample.addEventListener('click', () => {
+            const sampleList = [
+                "김철수", "이영희", "박지성", "손흥민", 
+                "강호동", "유재석", "아이유", "BTS정국", 
+                "최민수", "한지민", "송중기", "수지"
+            ];
+            namesInput.value = sampleList.join('\n');
+            winner1st = null;
+            winner2nd = null;
+            w1Name.textContent = '---';
+            w2Name.textContent = '---';
+            namesInput.dispatchEvent(new Event('input'));
+        });
+
+        // Reset Button
+        btnReset.addEventListener('click', () => {
+            if(isSpinning) return;
+            namesInput.value = '';
+            participants = [];
+            currentRotation = 0;
+            winner1st = null;
+            winner2nd = null;
+            w1Name.textContent = '---';
+            w2Name.textContent = '---';
+            participantCount.textContent = '0 / 20명';
+            statusBadge.textContent = '준비됨';
+            hideAlert();
+            drawWheel();
+        });
+
+        // Draw Roulette Wheel (draws active candidate pool if spinning for specific rank, else full list)
+        function drawWheel(customList = null) {
+            const listToDraw = customList || getParticipantsFromInput();
+            const dpr = window.devicePixelRatio || 1;
+            const width = canvas.width / dpr;
+            const height = canvas.height / dpr;
+            const centerX = width / 2;
+            const centerY = height / 2;
+            const radius = Math.min(centerX, centerY) - 10;
+
+            ctx.clearRect(0, 0, width, height);
+
+            if (listToDraw.length === 0) {
+                // Empty State Wheel Placeholder
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+                ctx.fillStyle = '#1e293b';
+                ctx.fill();
+                ctx.strokeStyle = '#334155';
+                ctx.lineWidth = 4;
+                ctx.stroke();
+
+                ctx.fillStyle = '#64748b';
+                ctx.font = 'bold 16px Inter, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('참가자를 입력하세요', centerX, centerY);
+                return;
+            }
+
+            const total = listToDraw.length;
+            const sliceAngle = (Math.PI * 2) / total;
+
+            ctx.save();
+            ctx.translate(centerX, centerY);
+            ctx.rotate(currentRotation);
+
+            // Draw Slices
+            for (let i = 0; i < total; i++) {
+                const startAngle = i * sliceAngle;
+                const endAngle = startAngle + sliceAngle;
+
+                // Slice Fill
+                ctx.beginPath();
+                ctx.moveTo(0, 0);
+                ctx.arc(0, 0, radius, startAngle, endAngle);
+                ctx.closePath();
+                ctx.fillStyle = sliceColors[i % sliceColors.length];
+                ctx.fill();
+
+                // Slice Border
+                ctx.strokeStyle = '#0f172a';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                // Text
+                ctx.save();
+                ctx.rotate(startAngle + sliceAngle / 2);
+                ctx.textAlign = 'right';
+                ctx.textBaseline = 'middle';
+                ctx.fillStyle = '#ffffff';
+                ctx.shadowColor = 'rgba(0, 0, 0, 0.6)';
+                ctx.shadowBlur = 4;
+                
+                // Dynamic font sizing
+                const fontSize = Math.max(11, Math.min(16, 220 / total));
+                ctx.font = `bold ${fontSize}px Inter, sans-serif`;
+
+                // Truncate long names
+                let name = listToDraw[i];
+                if (name.length > 7) name = name.substring(0, 6) + '..';
+                
+                ctx.fillText(name, radius - 20, 0);
+                ctx.restore();
+            }
+
+            // Outer Wheel Rim Effect
+            ctx.beginPath();
+            ctx.arc(0, 0, radius, 0, Math.PI * 2);
+            ctx.lineWidth = 8;
+            ctx.strokeStyle = '#38bdf8';
+            ctx.stroke();
+
+            // Center Pin Hub
+            ctx.beginPath();
+            ctx.arc(0, 0, 24, 0, Math.PI * 2);
+            ctx.fillStyle = '#0f172a';
+            ctx.fill();
+            ctx.lineWidth = 3;
+            ctx.strokeStyle = '#f59e0b';
+            ctx.stroke();
+
+            ctx.restore();
+        }
+
+        // Generic Spin Function (Duration ~10 Seconds, excludes already won participants)
+        function spinWheel(targetRank) {
+            if (isSpinning) return;
+            
+            // Check if winner for targetRank already exists
+            if (targetRank === 1 && winner1st) {
+                showAlert("이미 1등 당첨자가 선정되었습니다! 더 이상 추첨할 수 없습니다.");
+                return;
+            }
+            if (targetRank === 2 && winner2nd) {
+                showAlert("이미 2등 당첨자가 선정되었습니다! 더 이상 추첨할 수 없습니다.");
+                return;
+            }
+
+            const activeCandidates = getActiveParticipants(targetRank);
+            if (activeCandidates.length < 1) {
+                showAlert("추첨할 수 있는 대상이 없습니다. (이미 당첨되었거나 참가자가 부족합니다)");
+                return;
+            }
+
+            hideAlert();
+            isSpinning = true;
+            btnSpin1st.disabled = true;
+            btnSpin2nd.disabled = true;
+            statusBadge.textContent = `${targetRank}등 추첨 중... (10초간 회전)`;
+
+            // Pick winner index from active candidates only
+            const winnerIdx = Math.floor(Math.random() * activeCandidates.length);
+
+            const total = activeCandidates.length;
+            const sliceAngle = (Math.PI * 2) / total;
+
+            // Target Angle Calculation (Top Pointer is 1.5 * Math.PI)
+            const targetSliceCenter = winnerIdx * sliceAngle + sliceAngle / 2;
+            const targetPointerAngle = (1.5 * Math.PI) - targetSliceCenter;
+            
+            // 10~15 Extra Rotations to make it spin for ~10 Seconds
+            const extraRotations = (10 + Math.floor(Math.random() * 5)) * Math.PI * 2;
+            
+            let targetRotation = currentRotation + extraRotations + ((targetPointerAngle - (currentRotation % (Math.PI * 2)) + Math.PI * 4) % (Math.PI * 2));
+
+            const spinDuration = 10000; // Exact 10 Seconds (10000ms)
+            const startTime = performance.now();
+            const startRotation = currentRotation;
+            let lastTickIndex = -1;
+
+            function animateSpin(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / spinDuration, 1);
+                
+                // Cubic Ease-Out formula for realistic slowdown over 10 seconds
+                const easeOut = 1 - Math.pow(1 - progress, 3);
+                
+                currentRotation = startRotation + (targetRotation - startRotation) * easeOut;
+                
+                // Draw wheel using active candidates list so already won members are excluded from the wheel visually during draw
+                drawWheel(activeCandidates);
+
+                // Sound Effect tick on sector change
+                const normalizedAngle = (1.5 * Math.PI - (currentRotation % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
+                const currentSector = Math.floor(normalizedAngle / sliceAngle);
+                if (currentSector !== lastTickIndex) {
+                    sfx.playTick();
+                    lastTickIndex = currentSector;
+                }
+
+                if (progress < 1) {
+                    requestAnimationFrame(animateSpin);
+                } else {
+                    // Spin finished
+                    isSpinning = false;
+                    btnSpin1st.disabled = false;
+                    btnSpin2nd.disabled = false;
+                    
+                    const winnerName = activeCandidates[winnerIdx];
+
+                    if (targetRank === 1) {
+                        winner1st = winnerName;
+                        w1Name.textContent = winnerName;
+                        statusBadge.textContent = `🥇 1등: ${winnerName}!`;
+                    } else {
+                        winner2nd = winnerName;
+                        w2Name.textContent = winnerName;
+                        statusBadge.textContent = `🥈 2등: ${winnerName}!`;
+                    }
+
+                    // Play celebration fanfare sound & fire confetti
+                    sfx.playFanfare();
+                    fireConfetti();
+                    showWinnerModal(targetRank, winnerName);
+                }
+            }
+
+            requestAnimationFrame(animateSpin);
+        }
+
+        // Show Winner Celebration Modal Popup
+        function showWinnerModal(rank, name) {
+            if (rank === 1) {
+                modalBadge.textContent = '🥇 🎉';
+                modalTitle.textContent = '축하합니다!';
+                modalRank.textContent = '🥇 1등 (Grand Prize) 당첨자';
+            } else {
+                modalBadge.textContent = '🥈 👏';
+                modalTitle.textContent = '축하합니다!';
+                modalRank.textContent = '🥈 2등 (Runner Up) 당첨자';
+            }
+            modalWinnerName.textContent = name;
+            
+            winnerModal.classList.remove('hidden');
+            winnerModal.classList.add('flex');
+        }
+
+        // Close Modal Listener
+        btnCloseModal.addEventListener('click', () => {
+            winnerModal.classList.add('hidden');
+            winnerModal.classList.remove('flex');
+        });
+
+        // Event Listeners for 1st & 2nd Place Buttons
+        btnSpin1st.addEventListener('click', () => spinWheel(1));
+        btnSpin2nd.addEventListener('click', () => spinWheel(2));
+
+        // Trigger Confetti Animation
+        function fireConfetti() {
+            if (typeof confetti === 'function') {
+                confetti({
+                    particleCount: 120,
+                    spread: 80,
+                    origin: { y: 0.6 }
+                });
+                setTimeout(() => {
+                    confetti({
+                        particleCount: 60,
+                        angle: 60,
+                        spread: 60,
+                        origin: { x: 0 }
+                    });
+                    confetti({
+                        particleCount: 60,
+                        angle: 120,
+                        spread: 60,
+                        origin: { x: 1 }
+                    });
+                }, 300);
+            }
+        }
+
+        // Initialize Wheel
+        window.onload = () => {
+            // Set default sample data on load
+            btnSample.click();
+            resizeCanvas();
+        };
+    </script>
+</body>
+</html>
