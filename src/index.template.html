@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2026년 재경부산고 40회 동기회 송년 행운 추첨</title>
+    <!-- 이 파일은 src/index.template.html 에서 `npm run build` 로 생성됩니다. 외부 CDN 없이 오프라인으로 동작합니다. -->
+    <style>/* INLINE:tailwind */</style>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Apple SD Gothic Neo', 'Malgun Gothic', 'Noto Sans KR', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #311042 100%);
+            min-height: 100vh;
+        }
+        /* Custom Glowing and Shadows */
+        .glow-button {
+            box-shadow: 0 0 15px rgba(168, 85, 247, 0.4);
+            transition: all 0.3s ease;
+        }
+        .glow-button:hover:not(:disabled) {
+            box-shadow: 0 0 25px rgba(168, 85, 247, 0.7);
+            transform: translateY(-2px);
+        }
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+        /* Glassmorphism Card */
+        .glass-card {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        /* Custom scrollbar */
+        textarea::-webkit-scrollbar, #logList::-webkit-scrollbar {
+            width: 8px;
+        }
+        textarea::-webkit-scrollbar-track, #logList::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.5);
+            border-radius: 4px;
+        }
+        textarea::-webkit-scrollbar-thumb, #logList::-webkit-scrollbar-thumb {
+            background: rgba(139, 92, 246, 0.5);
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<text class="text-white">
+    <div class="container mx-auto px-4 py-8 max-w-5xl">
+        <!-- Header -->
+        <header class="text-center mb-8">
+            <h1 class="text-3xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-pink-400 to-purple-400 mb-2 leading-tight">
+                🎯 40회 동기회 26년 송년 행운 추첨
+            </h1>
+        </header>
+
+        <!-- Main Content Layout -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+
+            <!-- Left Side: Input Form & Controls -->
+            <div class="lg:col-span-4 glass-card p-6 rounded-2xl shadow-xl flex flex-col gap-5">
+                <div>
+                    <div class="flex justify-between items-center mb-2">
+                        <label for="namesInput" class="font-semibold text-slate-200 text-sm flex items-center gap-2">
+                            <span aria-hidden="true">👥</span> 참가자 목록 입력
+                        </label>
+                        <span id="participantCount" class="text-xs font-bold px-2 py-1 rounded-full bg-purple-900/60 text-purple-300 border border-purple-500/30">
+                            0명
+                        </span>
+                    </div>
+                    <p class="text-xs text-slate-400 mb-3">줄바꿈(Enter) 또는 쉼표(,)로 구분해 주세요. 동명이인은 "홍길동(3반)"처럼 구분해 주세요.</p>
+                    <textarea id="namesInput" rows="7"
+                        class="w-full bg-slate-900/80 border border-slate-700 rounded-xl p-3.5 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/30 transition text-sm resize-none read-only:opacity-70 read-only:cursor-not-allowed"
+                        placeholder="홍길동&#10;김철수&#10;이영희&#10;박지성&#10;손흥민..."></textarea>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex flex-col gap-2.5">
+                    <button id="btnSample" class="w-full py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium text-xs rounded-lg border border-slate-700 transition flex items-center justify-center gap-2">
+                        <span aria-hidden="true">✨</span> 예시 데이터 불러오기
+                    </button>
+
+                    <!-- 명단 확정 / 해제 -->
+                    <button id="btnLock" class="w-full py-2.5 bg-emerald-700 hover:bg-emerald-600 text-white font-bold text-sm rounded-lg border border-emerald-500/40 transition flex items-center justify-center gap-2">
+                        🔒 명단 확정
+                    </button>
+
+                    <!-- 1등 / 2등 추첨 버튼 분리 -->
+                    <div class="grid grid-cols-2 gap-2 mt-1">
+                        <button id="btnSpin1st" class="glow-button py-3.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-extrabold text-base rounded-xl transition flex items-center justify-center gap-2">
+                            🥇 1등 추첨!
+                        </button>
+                        <button id="btnSpin2nd" class="glow-button py-3.5 bg-gradient-to-r from-slate-400 to-slate-500 hover:from-slate-300 hover:to-slate-400 text-slate-950 font-extrabold text-base rounded-xl transition flex items-center justify-center gap-2">
+                            🥈 2등 추첨!
+                        </button>
+                    </div>
+
+                    <button id="btnReset" class="w-full py-2 bg-rose-950/40 hover:bg-rose-900/50 text-rose-300 font-medium text-xs rounded-lg border border-rose-800/40 transition flex items-center justify-center gap-2 mt-1">
+                        <span aria-hidden="true">🗑️</span> 전체 초기화 (저장 데이터·기록 삭제)
+                    </button>
+                </div>
+
+                <!-- Alert Box -->
+                <div id="alertBox" class="hidden p-3 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs flex items-start gap-2">
+                    <span aria-hidden="true">⚠️</span>
+                    <span id="alertMessage" class="break-all">알림 메시지</span>
+                </div>
+            </div>
+
+            <!-- Right Side: Roulette Canvas & Winner Cards -->
+            <div class="lg:col-span-8 flex flex-col items-center gap-6">
+
+                <!-- Roulette Container -->
+                <div class="glass-card p-6 rounded-2xl shadow-2xl w-full flex flex-col items-center justify-center relative overflow-hidden">
+
+                    <!-- Top Pin Pointer -->
+                    <div class="absolute top-3 z-20 flex flex-col items-center filter drop-shadow-[0_4px_6px_rgba(0,0,0,0.5)]">
+                        <div class="w-6 h-8 bg-amber-400 transform rotate-180" style="clip-path: polygon(50% 0%, 0% 100%, 100% 100%);"></div>
+                        <div class="w-4 h-4 rounded-full bg-amber-300 border-2 border-slate-900 -mt-2"></div>
+                    </div>
+
+                    <!-- Canvas Wheel -->
+                    <div class="relative w-full max-w-[420px] aspect-square flex items-center justify-center my-2">
+                        <canvas id="rouletteCanvas" class="w-full h-full rounded-full shadow-2xl"></canvas>
+                    </div>
+
+                    <!-- Status -->
+                    <div id="statusBadge" class="mt-2 text-xs font-semibold text-slate-400 tracking-wide uppercase">
+                        준비됨
+                    </div>
+                </div>
+
+                <!-- Winners Board Container -->
+                <div class="w-full grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- 1st Place Winner Card -->
+                    <div class="glass-card p-4 rounded-xl border border-amber-500/30 bg-gradient-to-br from-amber-500/10 via-slate-900/60 to-slate-900/80 flex items-center gap-4 relative overflow-hidden">
+                        <div class="w-12 h-12 rounded-full bg-amber-500/20 border border-amber-400/50 flex items-center justify-center text-amber-300 text-2xl font-bold shrink-0">
+                            🥇
+                        </div>
+                        <div>
+                            <div class="text-xs uppercase tracking-wider font-bold text-amber-400 mb-0.5">1등 당첨자 (Grand Prize)</div>
+                            <div id="w1Name" class="text-xl font-extrabold text-white">---</div>
+                        </div>
+                    </div>
+
+                    <!-- 2nd Place Winner Card -->
+                    <div class="glass-card p-4 rounded-xl border border-slate-400/30 bg-gradient-to-br from-slate-400/10 via-slate-900/60 to-slate-900/80 flex items-center gap-4 relative overflow-hidden">
+                        <div class="w-12 h-12 rounded-full bg-slate-300/20 border border-slate-300/50 flex items-center justify-center text-slate-200 text-2xl font-bold shrink-0">
+                            🥈
+                        </div>
+                        <div>
+                            <div class="text-xs uppercase tracking-wider font-bold text-slate-300 mb-0.5">2등 당첨자 (Runner Up)</div>
+                            <div id="w2Name" class="text-xl font-extrabold text-white">---</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Draw Log (추첨 기록) -->
+                <div class="glass-card w-full p-4 rounded-xl">
+                    <div class="flex flex-wrap justify-between items-center gap-2 mb-3">
+                        <div class="font-semibold text-slate-200 text-sm">📋 추첨 기록</div>
+                        <div class="flex gap-2">
+                            <button id="btnExportCsv" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs rounded-lg border border-slate-700 transition">⬇️ CSV 저장</button>
+                            <button id="btnPrintLog" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs rounded-lg border border-slate-700 transition">🖨️ 인쇄</button>
+                        </div>
+                    </div>
+                    <ol id="logList" class="text-xs text-slate-300 flex flex-col gap-1.5 max-h-56 overflow-y-auto pr-1"></ol>
+                    <p class="text-[11px] text-slate-500 mt-3">기록과 명단은 이 브라우저에만 저장되며 외부로 전송되지 않습니다. 공용 PC라면 행사 후 기록을 저장한 뒤 "전체 초기화"로 삭제해 주세요.</p>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Celebration Modal Popup -->
+    <div id="winnerModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md hidden items-center justify-center z-50 p-4 transition-all duration-300">
+        <div class="glass-card max-w-sm w-full p-8 rounded-3xl text-center border-2 border-amber-400/50 shadow-2xl transform transition-transform scale-95 duration-300 relative overflow-hidden">
+            <div id="modalBadge" class="inline-block text-4xl mb-3">🎉</div>
+            <h3 id="modalTitle" class="text-xl font-bold text-amber-300 uppercase tracking-widest mb-1">축하합니다!</h3>
+            <div id="modalRank" class="text-sm text-slate-300 mb-4 font-semibold">1등 당첨</div>
+
+            <div id="modalWinnerName" class="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-pink-300 to-purple-300 mb-6 drop-shadow-sm break-all">
+                홍길동
+            </div>
+
+            <button id="btnCloseModal" class="w-full py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-bold rounded-xl shadow-lg transition transform active:scale-95">
+                확인
+            </button>
+        </div>
+    </div>
+
+    <!-- canvas-confetti (인라인, 오프라인 동작) -->
+    <script>/* INLINE:confetti */</script>
+
+    <!-- Web Audio API Sound Generator -->
+    <script>
+        // Web Audio Synthesizer for Sound Effects (No external audio file dependencies)
+        class SoundFX {
+            constructor() {
+                this.ctx = null;
+            }
+            init() {
+                if (!this.ctx) {
+                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+            }
+            playTick() {
+                try {
+                    this.init();
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(600, this.ctx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(150, this.ctx.currentTime + 0.04);
+                    gain.gain.setValueAtTime(0.15, this.ctx.currentTime);
+                    gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.04);
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start();
+                    osc.stop(this.ctx.currentTime + 0.04);
+                } catch(e){}
+            }
+            playFanfare() {
+                try {
+                    this.init();
+                    const now = this.ctx.currentTime;
+                    const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+                    notes.forEach((freq, idx) => {
+                        const osc = this.ctx.createOscillator();
+                        const gain = this.ctx.createGain();
+                        osc.type = 'triangle';
+                        osc.frequency.setValueAtTime(freq, now + idx * 0.1);
+                        gain.gain.setValueAtTime(0.2, now + idx * 0.1);
+                        gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.1 + 0.3);
+                        osc.connect(gain);
+                        gain.connect(this.ctx.destination);
+                        osc.start(now + idx * 0.1);
+                        osc.stop(now + idx * 0.1 + 0.3);
+                    });
+                } catch(e){}
+            }
+        }
+        const sfx = new SoundFX();
+    </script>
+
+    <!-- Main Logic Script -->
+    <script>
+        // ===== 설정 =====
+        const STORAGE_KEY = 'roulette40.v1';
+
+        // Color Palette for Segments
+        const sliceColors = [
+            '#f43f5e', '#ec4899', '#d946ef', '#a855f7',
+            '#8b5cf6', '#6366f1', '#3b82f6', '#0ea5e9',
+            '#06b6d4', '#14b8a6', '#10b981', '#22c55e',
+            '#84cc16', '#eab308', '#f59e0b', '#f97316',
+            '#ef4444', '#f43f5e', '#8b5cf6', '#06b6d4'
+        ];
+
+        // Elements
+        const canvas = document.getElementById('rouletteCanvas');
+        const ctx = canvas.getContext('2d');
+        const namesInput = document.getElementById('namesInput');
+        const participantCount = document.getElementById('participantCount');
+        const btnSpin1st = document.getElementById('btnSpin1st');
+        const btnSpin2nd = document.getElementById('btnSpin2nd');
+        const btnReset = document.getElementById('btnReset');
+        const btnSample = document.getElementById('btnSample');
+        const btnLock = document.getElementById('btnLock');
+        const btnExportCsv = document.getElementById('btnExportCsv');
+        const btnPrintLog = document.getElementById('btnPrintLog');
+        const logList = document.getElementById('logList');
+        const alertBox = document.getElementById('alertBox');
+        const alertMessage = document.getElementById('alertMessage');
+        const w1Name = document.getElementById('w1Name');
+        const w2Name = document.getElementById('w2Name');
+        const statusBadge = document.getElementById('statusBadge');
+
+        // Modal Elements
+        const winnerModal = document.getElementById('winnerModal');
+        const modalBadge = document.getElementById('modalBadge');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalRank = document.getElementById('modalRank');
+        const modalWinnerName = document.getElementById('modalWinnerName');
+        const btnCloseModal = document.getElementById('btnCloseModal');
+
+        // ===== 상태 =====
+        // roster: 확정된 명단(확정 후에는 입력창 내용과 무관하게 이 명단으로만 추첨)
+        let state = {
+            namesText: '',
+            locked: false,
+            roster: [],
+            winner1st: null,
+            winner2nd: null,
+            log: []           // { ts: ISO문자열, event: 문자열, detail: 문자열 }
+        };
+        let currentRotation = 0; // in radians (화면 표시용, 저장하지 않음)
+        let isSpinning = false;
+
+        // ===== 저장/복원 (localStorage, 실패해도 동작은 계속) =====
+        function saveState() {
+            try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) {}
+        }
+        function loadState() {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEY);
+                if (!raw) return false;
+                const s = JSON.parse(raw);
+                if (!s || typeof s !== 'object') return false;
+                state = {
+                    namesText: typeof s.namesText === 'string' ? s.namesText : '',
+                    locked: !!s.locked && Array.isArray(s.roster),
+                    roster: Array.isArray(s.roster) ? s.roster.map(String) : [],
+                    winner1st: typeof s.winner1st === 'string' ? s.winner1st : null,
+                    winner2nd: typeof s.winner2nd === 'string' ? s.winner2nd : null,
+                    log: Array.isArray(s.log) ? s.log : []
+                };
+                return true;
+            } catch (e) { return false; }
+        }
+        function clearStorage() {
+            try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
+        }
+
+        // ===== 추첨 기록 =====
+        function addLog(event, detail) {
+            state.log.push({ ts: new Date().toISOString(), event, detail: detail || '' });
+            saveState();
+            renderLog();
+        }
+        function formatTs(iso) {
+            const d = new Date(iso);
+            const p = n => String(n).padStart(2, '0');
+            return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
+        }
+        function renderLog() {
+            logList.innerHTML = '';
+            if (state.log.length === 0) {
+                const li = document.createElement('li');
+                li.className = 'text-slate-500';
+                li.textContent = '아직 기록이 없습니다. 명단을 확정하면 기록이 시작됩니다.';
+                logList.appendChild(li);
+                return;
+            }
+            state.log.forEach((entry, i) => {
+                const li = document.createElement('li');
+                li.className = 'border-l-2 border-purple-500/50 pl-2';
+                const head = document.createElement('div');
+                head.innerHTML = '<span class="text-slate-500"></span> <span class="font-semibold text-slate-100"></span>';
+                head.children[0].textContent = `#${i + 1} ${formatTs(entry.ts)}`;
+                head.children[1].textContent = entry.event;
+                li.appendChild(head);
+                if (entry.detail) {
+                    const det = document.createElement('div');
+                    det.className = 'text-slate-400 break-all';
+                    det.textContent = entry.detail;
+                    li.appendChild(det);
+                }
+                logList.appendChild(li);
+            });
+            logList.scrollTop = logList.scrollHeight;
+        }
+        function csvCell(v) {
+            const s = String(v ?? '');
+            return /[",\r\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+        }
+        function exportCsv() {
+            if (state.log.length === 0) { showAlert('저장할 추첨 기록이 없습니다.'); return; }
+            const rows = [['순번', '일시', '구분', '내용']];
+            state.log.forEach((e, i) => rows.push([i + 1, formatTs(e.ts), e.event, e.detail]));
+            const csv = '﻿' + rows.map(r => r.map(csvCell).join(',')).join('\r\n'); // BOM: 엑셀 한글 깨짐 방지
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+            const a = document.createElement('a');
+            const stamp = formatTs(new Date().toISOString()).replace(/[: ]/g, '').replace(/-/g, '');
+            a.href = URL.createObjectURL(blob);
+            a.download = `draw_log_${stamp}.csv`; // 일부 환경에서 한글 파일명이 "download"로 바뀌는 문제 회피
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+        }
+        function escapeHtml(s) {
+            return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+        }
+        function printLog() {
+            if (state.log.length === 0) { showAlert('인쇄할 추첨 기록이 없습니다.'); return; }
+            const w = window.open('', '_blank');
+            if (!w) { showAlert('팝업이 차단되어 인쇄 창을 열 수 없습니다. CSV 저장을 이용해 주세요.'); return; }
+            const rows = state.log.map((e, i) =>
+                `<tr><td>${i + 1}</td><td>${formatTs(e.ts)}</td><td>${escapeHtml(e.event)}</td><td>${escapeHtml(e.detail)}</td></tr>`).join('');
+            w.document.write(`<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><title>추첨 기록</title>
+                <style>body{font-family:sans-serif;padding:24px}table{border-collapse:collapse;width:100%;font-size:12px}
+                th,td{border:1px solid #999;padding:6px;text-align:left;vertical-align:top;word-break:break-all}th{background:#eee}</style></head>
+                <body><h2>40회 동기회 26년 송년 행운 추첨 — 추첨 기록</h2>
+                <p>출력 일시: ${formatTs(new Date().toISOString())}</p>
+                <table><thead><tr><th>순번</th><th>일시</th><th>구분</th><th>내용</th></tr></thead><tbody>${rows}</tbody></table>
+                </body></html>`);
+            w.document.close();
+            w.focus();
+            w.print();
+        }
+
+        // ===== 보안 난수 (crypto.getRandomValues + rejection sampling) =====
+        // 0 이상 n 미만의 정수를 편향 없이 균등하게 반환
+        function secureRandomInt(n) {
+            if (!(window.crypto && crypto.getRandomValues)) {
+                throw new Error('이 브라우저는 보안 난수(crypto.getRandomValues)를 지원하지 않습니다.');
+            }
+            const range = 0x100000000; // 2^32
+            const limit = range - (range % n); // 이 값 이상은 버려서 모듈로 편향 제거
+            const buf = new Uint32Array(1);
+            let x;
+            do { crypto.getRandomValues(buf); x = buf[0]; } while (x >= limit);
+            return x % n;
+        }
+        // 0 이상 1 미만의 실수 (연출용)
+        function secureRandomFloat() {
+            const buf = new Uint32Array(1);
+            crypto.getRandomValues(buf);
+            return buf[0] / 0x100000000;
+        }
+
+        // ===== 명단 파싱 / 검증 =====
+        function parseNames(text) {
+            return text.split(/[\n,]+/)
+                       .map(s => s.replace(/\s+/g, ' ').trim())
+                       .filter(s => s.length > 0);
+        }
+        function findDuplicates(list) {
+            const seen = new Set(), dup = new Set();
+            list.forEach(n => (seen.has(n) ? dup.add(n) : seen.add(n)));
+            return [...dup];
+        }
+        // 현재 화면/추첨에 쓰는 명단: 확정 후에는 roster, 확정 전에는 입력창
+        function currentList() {
+            return state.locked ? state.roster : parseNames(namesInput.value);
+        }
+        // 추첨 대상: 확정 명단에서 다른 등수 당첨자 제외 (명단 내 이름은 중복 불가로 보장됨)
+        function getActiveParticipants(targetRank) {
+            const other = targetRank === 1 ? state.winner2nd : state.winner1st;
+            return state.roster.filter(name => name !== other);
+        }
+
+        // ===== Alert =====
+        function showAlert(msg) {
+            alertMessage.textContent = msg;
+            alertBox.classList.remove('hidden');
+        }
+        function hideAlert() {
+            alertBox.classList.add('hidden');
+        }
+
+        // ===== UI 동기화 =====
+        function updateUI() {
+            const list = currentList();
+            participantCount.textContent = state.locked ? `${list.length}명 · 확정됨` : `${list.length}명`;
+
+            namesInput.readOnly = state.locked || isSpinning;
+            btnSample.disabled = state.locked || isSpinning;
+            btnReset.disabled = isSpinning;
+            btnLock.disabled = isSpinning;
+            btnSpin1st.disabled = isSpinning || !state.locked || !!state.winner1st;
+            btnSpin2nd.disabled = isSpinning || !state.locked || !!state.winner2nd;
+            btnExportCsv.disabled = isSpinning;
+            btnPrintLog.disabled = isSpinning;
+
+            btnLock.textContent = state.locked ? '🔓 명단 확정 해제' : '🔒 명단 확정';
+            btnLock.classList.toggle('bg-emerald-700', !state.locked);
+            btnLock.classList.toggle('hover:bg-emerald-600', !state.locked);
+            btnLock.classList.toggle('bg-slate-700', state.locked);
+            btnLock.classList.toggle('hover:bg-slate-600', state.locked);
+
+            w1Name.textContent = state.winner1st || '---';
+            w2Name.textContent = state.winner2nd || '---';
+
+            if (!isSpinning) {
+                if (!state.locked) statusBadge.textContent = '명단 입력 후 "명단 확정"을 눌러 주세요';
+                else if (state.winner1st && state.winner2nd) statusBadge.textContent = '추첨 완료';
+                else statusBadge.textContent = '명단 확정됨 · 추첨 가능';
+            }
+        }
+
+        // 입력 중 실시간 검증 (중복 경고)
+        function validateInputLive() {
+            if (state.locked) return;
+            const dups = findDuplicates(parseNames(namesInput.value));
+            if (dups.length) showAlert(`중복된 이름이 있습니다: ${dups.join(', ')} — 동명이인은 "홍길동(3반)"처럼 구분해 주세요. 중복이 있으면 명단을 확정할 수 없습니다.`);
+            else hideAlert();
+        }
+
+        // High DPI Canvas Scaling
+        function resizeCanvas() {
+            const rect = canvas.parentElement.getBoundingClientRect();
+            const dpr = window.devicePixelRatio || 1;
+            canvas.width = rect.width * dpr;
+            canvas.height = rect.height * dpr;
+            ctx.scale(dpr, dpr);
+            drawWheel();
+        }
+        window.addEventListener('resize', resizeCanvas);
+
+        // Input Change Listener
+        namesInput.addEventListener('input', () => {
+            if (state.locked || isSpinning) return;
+            state.namesText = namesInput.value;
+            saveState();
+            validateInputLive();
+            updateUI();
+            drawWheel();
+        });
+
+        // Sample Data Button (확정 전에만, 기존 입력이 있으면 확인)
+        btnSample.addEventListener('click', () => {
+            if (state.locked || isSpinning) return;
+            if (namesInput.value.trim() && !confirm('입력된 명단을 예시 데이터로 바꿀까요?')) return;
+            const sampleList = [
+                "김철수", "이영희", "박지성", "손흥민",
+                "강호동", "유재석", "아이유", "BTS정국",
+                "최민수", "한지민", "송중기", "수지"
+            ];
+            namesInput.value = sampleList.join('\n');
+            namesInput.dispatchEvent(new Event('input'));
+        });
+
+        // 명단 확정 / 해제
+        btnLock.addEventListener('click', () => {
+            if (isSpinning) return;
+            if (!state.locked) {
+                const list = parseNames(namesInput.value);
+                if (list.length < 1) { showAlert('참가자를 1명 이상 입력해 주세요.'); return; }
+                const dups = findDuplicates(list);
+                if (dups.length) { validateInputLive(); return; }
+                if (!confirm(`참가자 ${list.length}명으로 명단을 확정합니다.\n확정 후에는 명단을 수정할 수 없습니다(해제 시 기존 추첨 결과는 무효 처리).\n\n진행할까요?`)) return;
+                state.locked = true;
+                state.roster = list;
+                state.namesText = namesInput.value;
+                hideAlert();
+                addLog('명단 확정', `${list.length}명: ${list.join(', ')}`);
+            } else {
+                const had = [];
+                if (state.winner1st) had.push(`1등 ${state.winner1st}`);
+                if (state.winner2nd) had.push(`2등 ${state.winner2nd}`);
+                const msg = had.length
+                    ? `명단 확정을 해제하면 기존 추첨 결과(${had.join(', ')})가 무효 처리됩니다.\n이 내용은 추첨 기록에 남습니다.\n\n해제할까요?`
+                    : '명단 확정을 해제하고 명단을 수정할까요?';
+                if (!confirm(msg)) return;
+                state.locked = false;
+                state.roster = [];
+                state.winner1st = null;
+                state.winner2nd = null;
+                addLog('명단 확정 해제', had.length ? `기존 결과 무효: ${had.join(', ')}` : '');
+            }
+            saveState();
+            updateUI();
+            drawWheel();
+        });
+
+        // Reset Button (저장 데이터 및 기록까지 삭제)
+        btnReset.addEventListener('click', () => {
+            if (isSpinning) return;
+            if (!confirm('명단, 당첨 결과, 추첨 기록을 모두 삭제합니다.\n필요하면 먼저 "CSV 저장"으로 기록을 보관해 주세요.\n\n전체 초기화할까요?')) return;
+            namesInput.value = '';
+            currentRotation = 0;
+            state = { namesText: '', locked: false, roster: [], winner1st: null, winner2nd: null, log: [] };
+            clearStorage();
+            hideAlert();
+            renderLog();
+            updateUI();
+            drawWheel();
+        });
+
+        // Draw Roulette Wheel
+        function drawWheel(customList = null) {
+            const listToDraw = customList || currentList();
+            const dpr = window.devicePixelRatio || 1;
+            const width = canvas.width / dpr;
+            const height = canvas.height / dpr;
+            const centerX = width / 2;
+            const centerY = height / 2;
+            const radius = Math.min(centerX, centerY) - 10;
+
+            ctx.clearRect(0, 0, width, height);
+
+            if (listToDraw.length === 0) {
+                // Empty State Wheel Placeholder
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+                ctx.fillStyle = '#1e293b';
+                ctx.fill();
+                ctx.strokeStyle = '#334155';
+                ctx.lineWidth = 4;
+                ctx.stroke();
+
+                ctx.fillStyle = '#64748b';
+                ctx.font = 'bold 16px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('참가자를 입력하세요', centerX, centerY);
+                return;
+            }
+
+            const total = listToDraw.length;
+            const sliceAngle = (Math.PI * 2) / total;
+
+            ctx.save();
+            ctx.translate(centerX, centerY);
+            ctx.rotate(currentRotation);
+
+            // 인원이 많을 때 글자 크기·표시 길이 축소 (20명 상한 제거에 따른 조정)
+            const fontSize = Math.max(8, Math.min(16, 220 / total));
+            const maxChars = total > 40 ? 5 : 7;
+
+            // Draw Slices
+            for (let i = 0; i < total; i++) {
+                const startAngle = i * sliceAngle;
+                const endAngle = startAngle + sliceAngle;
+
+                // Slice Fill
+                ctx.beginPath();
+                ctx.moveTo(0, 0);
+                ctx.arc(0, 0, radius, startAngle, endAngle);
+                ctx.closePath();
+                ctx.fillStyle = sliceColors[i % sliceColors.length];
+                ctx.fill();
+
+                // Slice Border
+                ctx.strokeStyle = '#0f172a';
+                ctx.lineWidth = total > 60 ? 1 : 2;
+                ctx.stroke();
+
+                // Text
+                ctx.save();
+                ctx.rotate(startAngle + sliceAngle / 2);
+                ctx.textAlign = 'right';
+                ctx.textBaseline = 'middle';
+                ctx.fillStyle = '#ffffff';
+                ctx.shadowColor = 'rgba(0, 0, 0, 0.6)';
+                ctx.shadowBlur = 4;
+                ctx.font = `bold ${fontSize}px sans-serif`;
+
+                // Truncate long names
+                let name = listToDraw[i];
+                if (name.length > maxChars) name = name.substring(0, maxChars - 1) + '..';
+
+                ctx.fillText(name, radius - 20, 0);
+                ctx.restore();
+            }
+
+            // Outer Wheel Rim Effect
+            ctx.beginPath();
+            ctx.arc(0, 0, radius, 0, Math.PI * 2);
+            ctx.lineWidth = 8;
+            ctx.strokeStyle = '#38bdf8';
+            ctx.stroke();
+
+            // Center Pin Hub
+            ctx.beginPath();
+            ctx.arc(0, 0, 24, 0, Math.PI * 2);
+            ctx.fillStyle = '#0f172a';
+            ctx.fill();
+            ctx.lineWidth = 3;
+            ctx.strokeStyle = '#f59e0b';
+            ctx.stroke();
+
+            ctx.restore();
+        }
+
+        // Generic Spin Function (Duration ~10 Seconds, excludes already won participants)
+        function spinWheel(targetRank) {
+            if (isSpinning) return;
+
+            if (!state.locked) {
+                showAlert('먼저 "명단 확정"을 눌러 참가자 명단을 확정해 주세요.');
+                return;
+            }
+            if (targetRank === 1 && state.winner1st) {
+                showAlert("이미 1등 당첨자가 선정되었습니다! 더 이상 추첨할 수 없습니다.");
+                return;
+            }
+            if (targetRank === 2 && state.winner2nd) {
+                showAlert("이미 2등 당첨자가 선정되었습니다! 더 이상 추첨할 수 없습니다.");
+                return;
+            }
+
+            const activeCandidates = getActiveParticipants(targetRank);
+            if (activeCandidates.length < 1) {
+                showAlert("추첨할 수 있는 대상이 없습니다. (이미 당첨되었거나 참가자가 부족합니다)");
+                return;
+            }
+
+            // Pick winner index from active candidates only (보안 난수)
+            let winnerIdx;
+            try {
+                winnerIdx = secureRandomInt(activeCandidates.length);
+            } catch (e) {
+                showAlert(e.message + ' 최신 브라우저(Chrome, Edge, Safari 등)를 사용해 주세요.');
+                return;
+            }
+
+            hideAlert();
+            isSpinning = true;
+            updateUI();
+            statusBadge.textContent = `${targetRank}등 추첨 중... (10초간 회전)`;
+            // 시작 기록: 회전 도중 새로고침 등으로 중단되면 '시작'만 남아 확인 가능
+            addLog(`${targetRank}등 추첨 시작`, `후보 ${activeCandidates.length}명`);
+
+            const total = activeCandidates.length;
+            const sliceAngle = (Math.PI * 2) / total;
+
+            // Target Angle Calculation (Top Pointer is 1.5 * Math.PI)
+            // 칸 중앙이 아닌 칸 내부 임의 위치(가장자리 10% 여유)에 멈추도록 연출
+            const offsetInSlice = (0.1 + 0.8 * secureRandomFloat()) * sliceAngle;
+            const targetSliceCenter = winnerIdx * sliceAngle + offsetInSlice;
+            const targetPointerAngle = (1.5 * Math.PI) - targetSliceCenter;
+
+            // 10~14 Extra Rotations to make it spin for ~10 Seconds
+            const extraRotations = (10 + secureRandomInt(5)) * Math.PI * 2;
+
+            let targetRotation = currentRotation + extraRotations + ((targetPointerAngle - (currentRotation % (Math.PI * 2)) + Math.PI * 4) % (Math.PI * 2));
+
+            const spinDuration = 10000; // 10 Seconds
+            const startTime = performance.now();
+            const startRotation = currentRotation;
+            let lastTickIndex = -1;
+
+            function animateSpin(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / spinDuration, 1);
+
+                // Cubic Ease-Out formula for realistic slowdown over 10 seconds
+                const easeOut = 1 - Math.pow(1 - progress, 3);
+
+                currentRotation = startRotation + (targetRotation - startRotation) * easeOut;
+
+                // Draw wheel using active candidates list so already won members are excluded from the wheel visually during draw
+                drawWheel(activeCandidates);
+
+                // Sound Effect tick on sector change
+                const normalizedAngle = (1.5 * Math.PI - (currentRotation % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
+                const currentSector = Math.floor(normalizedAngle / sliceAngle);
+                if (currentSector !== lastTickIndex) {
+                    sfx.playTick();
+                    lastTickIndex = currentSector;
+                }
+
+                if (progress < 1) {
+                    requestAnimationFrame(animateSpin);
+                } else {
+                    // Spin finished
+                    isSpinning = false;
+                    const winnerName = activeCandidates[winnerIdx];
+
+                    if (targetRank === 1) state.winner1st = winnerName;
+                    else state.winner2nd = winnerName;
+
+                    addLog(`${targetRank}등 당첨`, `${winnerName} (후보 ${total}명: ${activeCandidates.join(', ')})`);
+                    updateUI();
+                    statusBadge.textContent = targetRank === 1 ? `🥇 1등: ${winnerName}!` : `🥈 2등: ${winnerName}!`;
+
+                    // Play celebration fanfare sound & fire confetti
+                    sfx.playFanfare();
+                    fireConfetti();
+                    showWinnerModal(targetRank, winnerName);
+                }
+            }
+
+            requestAnimationFrame(animateSpin);
+        }
+
+        // Show Winner Celebration Modal Popup
+        function showWinnerModal(rank, name) {
+            if (rank === 1) {
+                modalBadge.textContent = '🥇 🎉';
+                modalTitle.textContent = '축하합니다!';
+                modalRank.textContent = '🥇 1등 (Grand Prize) 당첨자';
+            } else {
+                modalBadge.textContent = '🥈 👏';
+                modalTitle.textContent = '축하합니다!';
+                modalRank.textContent = '🥈 2등 (Runner Up) 당첨자';
+            }
+            modalWinnerName.textContent = name;
+
+            winnerModal.classList.remove('hidden');
+            winnerModal.classList.add('flex');
+        }
+
+        // Close Modal Listener
+        btnCloseModal.addEventListener('click', () => {
+            winnerModal.classList.add('hidden');
+            winnerModal.classList.remove('flex');
+        });
+
+        // Event Listeners for 1st & 2nd Place Buttons
+        btnSpin1st.addEventListener('click', () => spinWheel(1));
+        btnSpin2nd.addEventListener('click', () => spinWheel(2));
+        btnExportCsv.addEventListener('click', exportCsv);
+        btnPrintLog.addEventListener('click', printLog);
+
+        // Trigger Confetti Animation
+        function fireConfetti() {
+            if (typeof confetti === 'function') {
+                confetti({
+                    particleCount: 120,
+                    spread: 80,
+                    origin: { y: 0.6 }
+                });
+                setTimeout(() => {
+                    confetti({
+                        particleCount: 60,
+                        angle: 60,
+                        spread: 60,
+                        origin: { x: 0 }
+                    });
+                    confetti({
+                        particleCount: 60,
+                        angle: 120,
+                        spread: 60,
+                        origin: { x: 1 }
+                    });
+                }, 300);
+            }
+        }
+
+        // Initialize: 저장된 명단·결과·기록 복원 (예시 데이터 자동 로딩 없음)
+        window.onload = () => {
+            if (loadState()) {
+                namesInput.value = state.locked ? state.roster.join('\n') : state.namesText;
+                const last = state.log[state.log.length - 1];
+                if (last && /추첨 시작$/.test(last.event)) {
+                    addLog('추첨 중단', '회전 도중 페이지가 새로고침되거나 닫혀 결과 없이 종료됨');
+                    showAlert('직전 추첨이 회전 도중 중단되어 결과 없이 종료되었습니다. 추첨 기록에 남겨졌습니다.');
+                }
+            }
+            if (!state.locked) validateInputLive();
+            renderLog();
+            updateUI();
+            resizeCanvas();
+        };
+    </script>
+</body>
+</html>

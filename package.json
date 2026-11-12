@@ -1,0 +1,12 @@
+{
+  "name": "roulette",
+  "private": true,
+  "description": "40회 동기회 송년 행운 추첨 - 단일 HTML 빌드",
+  "scripts": {
+    "build": "node scripts/build.mjs"
+  },
+  "devDependencies": {
+    "canvas-confetti": "1.6.0",
+    "tailwindcss": "3.4.17"
+  }
+}
